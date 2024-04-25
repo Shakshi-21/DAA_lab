@@ -1,0 +1,113 @@
+write priority queue in c language according to their ascii value for the following data A, b, a, C, E, f, G
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 100
+
+typedef struct {
+    char data;
+    int priority;
+} Element;
+
+typedef struct {
+    Element items[MAX_SIZE];
+    int front, rear;
+} PriorityQueue;
+
+PriorityQueue* createPriorityQueue() {
+    PriorityQueue* pq = (PriorityQueue*)malloc(sizeof(PriorityQueue));
+    pq->front = pq->rear = -1;
+    return pq;
+}
+
+int isEmpty(PriorityQueue* pq) {
+    return pq->front == -1;
+}
+
+int isFull(PriorityQueue* pq) {
+    return pq->rear == MAX_SIZE - 1;
+}
+
+void enqueue(PriorityQueue* pq, char data, int priority) {
+    if (isFull(pq)) {
+        printf("Queue is full. Cannot enqueue.\n");
+        return;
+    }
+
+    Element newItem;
+    newItem.data = data;
+    newItem.priority = priority;
+
+    if (isEmpty(pq)) {
+        pq->front = pq->rear = 0;
+        pq->items[pq->rear] = newItem;
+    } else {
+        int i;
+        for (i = pq->rear; i >= pq->front; i--) {
+            if (newItem.priority < pq->items[i].priority)
+                pq->items[i + 1] = pq->items[i];
+            else
+                break;
+        }
+        pq->items[i + 1] = newItem;
+        pq->rear++;
+    }
+}
+
+char dequeue(PriorityQueue* pq) {
+    if (isEmpty(pq)) {
+        printf("Queue is empty. Cannot dequeue.\n");
+        return '\0';
+    }
+
+    char data = pq->items[pq->front].data;
+
+    if (pq->front == pq->rear)
+        pq->front = pq->rear = -1;
+    else
+        pq->front++;
+
+    return data;
+}
+
+void display(PriorityQueue* pq) {
+    if (isEmpty(pq)) {
+        printf("Queue is empty.\n");
+        return;
+    }
+
+    printf("Priority Queue:\n");
+    for (int i = pq->front; i <= pq->rear; i++) {
+        printf("(%c, %d) ", pq->items[i].data, pq->items[i].priority);
+    }
+    printf("\n");
+}
+
+int main() {
+    PriorityQueue* pq = createPriorityQueue();
+
+    // Enqueue data with priorities
+    enqueue(pq, 'A', 'A');
+    enqueue(pq, 'b', 'b');
+    enqueue(pq, 'a', 'a');
+    enqueue(pq, 'C', 'C');
+    enqueue(pq, 'E', 'E');
+    enqueue(pq, 'f', 'f');
+    enqueue(pq, 'G', 'G');
+
+    // Display the priority queue
+    display(pq);
+
+    // Dequeue and display
+    printf("Dequeued element: %c\n", dequeue(pq));
+
+    // Display again after dequeue
+    display(pq);
+
+    // Free the memory
+    free(pq);
+
+    return 0;
+}
